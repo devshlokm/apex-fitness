@@ -7,6 +7,7 @@ import Dashboard from "@/pages/dashboard";
 import Nutrition from "@/pages/nutrition";
 import Workouts from "@/pages/workouts";
 import Progress from "@/pages/progress";
+import More from "@/pages/more";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -16,6 +17,7 @@ function Router() {
       <Route path="/nutrition" component={Nutrition} />
       <Route path="/workouts" component={Workouts} />
       <Route path="/progress" component={Progress} />
+      <Route path="/more" component={More} />
       <Route component={NotFound} />
     </Switch>
   );

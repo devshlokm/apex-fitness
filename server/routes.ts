@@ -305,8 +305,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return sum + (meal.customProtein || 0);
       }, 0);
 
-      const caloriesProgress = goals ? (totalCalories / goals.targetCalories) * 100 : 0;
-      const proteinProgress = goals ? (totalProtein / goals.targetProtein) * 100 : 0;
+      const caloriesProgress = goals ? (totalCalories / (goals.targetCalories || 2300)) * 100 : 0;
+      const proteinProgress = goals ? (totalProtein / (goals.targetProtein || 180)) * 100 : 0;
 
       res.json({
         user,

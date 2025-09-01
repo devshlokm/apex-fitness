@@ -36,7 +36,7 @@ export function MealLibraryModal({ isOpen, onClose, userId }: MealLibraryModalPr
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
-  const { data: mealOptions = [], isLoading } = useQuery({
+  const { data: mealOptions = [], isLoading } = useQuery<MealOption[]>({
     queryKey: ["/api/meal-options"],
     enabled: isOpen,
   });
@@ -70,12 +70,12 @@ export function MealLibraryModal({ isOpen, onClose, userId }: MealLibraryModalPr
     },
   });
 
-  const filteredMeals = mealOptions.filter((meal: MealOption) =>
+  const filteredMeals = mealOptions.filter((meal) =>
     meal.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     meal.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const mealsByCategory = filteredMeals.reduce((acc: Record<string, MealOption[]>, meal: MealOption) => {
+  const mealsByCategory = filteredMeals.reduce((acc: Record<string, MealOption[]>, meal) => {
     if (!acc[meal.category]) {
       acc[meal.category] = [];
     }

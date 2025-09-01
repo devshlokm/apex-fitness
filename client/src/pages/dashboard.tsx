@@ -33,7 +33,7 @@ export default function Dashboard() {
     todaysMeals = [],
     recentWorkouts = [],
     progress = { calories: { consumed: 0, target: 2300, percentage: 0 }, protein: { consumed: 0, target: 180, percentage: 0 } }
-  } = dashboardData || {};
+  } = dashboardData || {} as any;
 
   const handleLogMeal = () => {
     setShowQuickAdd(false);
@@ -205,7 +205,7 @@ export default function Dashboard() {
                   </Button>
                 </div>
               ) : (
-                todaysMeals.map((meal, index) => (
+                todaysMeals.map((meal: any, index: number) => (
                   <div key={index} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg">
                     <div className="flex-1">
                       <p className="font-medium text-foreground" data-testid={`meal-name-${index}`}>
@@ -248,7 +248,7 @@ export default function Dashboard() {
               </div>
             ) : (
               <div className="space-y-3">
-                {recentWorkouts.map((workout, index) => (
+                {recentWorkouts.map((workout: any, index: number) => (
                   <div key={workout.id} className="p-3 bg-muted/30 rounded-lg">
                     <div className="flex items-center justify-between mb-2">
                       <div>
