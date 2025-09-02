@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitTracker Pro - Comprehensive Fitness & Nutrition Tracking</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                borderRadius: {
+                    lg: "var(--radius)",
+                    md: "calc(var(--radius) - 2px)",
+                    sm: "calc(var(--radius) - 4px)",
+                },
+                colors: {
+                    background: "var(--background)",
+                    foreground: "var(--foreground)",
+                    card: {
+                        DEFAULT: "var(--card)",
+                        foreground: "var(--card-foreground)",
+                    },
+                    primary: {
+                        DEFAULT: "var(--primary)",
+                        foreground: "var(--primary-foreground)",
+                    },
+                    secondary: {
+                        DEFAULT: "var(--secondary)",
+                        foreground: "var(--secondary-foreground)",
+                    },
+                    accent: {
+                        DEFAULT: "var(--accent)",
+                        foreground: "var(--accent-foreground)",
+                    },
+                    success: {
+                        DEFAULT: "var(--success)",
+                        foreground: "var(--success-foreground)",
+                    },
+                    border: "var(--border)",
+                    input: "var(--input)",
+                    ring: "var(--ring)",
+                }
+            }
+        }
+    };
+    </script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --background: hsl(0 0% 98%);
+            --foreground: hsl(0 0% 13%);
+            --card: hsl(0 0% 100%);
+            --card-foreground: hsl(0 0% 13%);
+            --primary: hsl(122 39% 49%);
+            --primary-foreground: hsl(0 0% 100%);
+            --secondary: hsl(16 100% 60%);
+            --secondary-foreground: hsl(0 0% 100%);
+            --accent: hsl(207 90% 54%);
+            --accent-foreground: hsl(0 0% 100%);
+            --success: hsl(88 50% 53%);
+            --success-foreground: hsl(0 0% 13%);
+            --border: hsl(0 0% 90%);
+            --input: hsl(0 0% 96%);
+            --ring: hsl(122 39% 49%);
+            --radius: 8px;
+        }
+        
+        * {
+            font-family: 'Roboto', sans-serif;
+        }
+        
+        .glass-effect {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        .gradient-primary {
+            background: linear-gradient(135deg, var(--primary), var(--success));
+        }
+        
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+        
+        .celebration-animation {
+            animation: bounce 0.6s ease-in-out;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 60%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-20px); }
+            80% { transform: translateY(-10px); }
+        }
+        
+        .streak-glow {
+            box-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
+        }
+        
+        .chart-container {
+            height: 200px;
+        }
+    </style>
+</head>
+
+<body class="bg-background text-foreground min-h-screen">
+    <!-- @COMPONENT: MobileApp [main application container] -->
+    <div class="max-w-md mx-auto bg-background min-h-screen relative overflow-hidden">
+        
+        <!-- Header with User Info and Streak -->
+        <!-- @COMPONENT: AppHeader [user profile and streak display] -->
+        <header class="glass-effect p-4 sticky top-0 z-50 border-b border-border">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <!-- User profile picture -->
+                    <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&w=40&h=40&fit=crop&crop=face" 
+                         alt="User Profile" class="w-10 h-10 rounded-full ring-2 ring-primary" data-mock="true">
+                    <div>
+                        <h1 class="text-lg font-medium text-foreground" data-bind="user.name">Alex Kumar</h1>
+                        <p class="text-sm text-gray-500" data-bind="user.goal">Goal: Build Muscle</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <div class="flex items-center space-x-1 streak-glow px-3 py-1 rounded-full bg-primary/10">
+                        <i class="fas fa-fire text-secondary text-sm"></i>
+                        <span class="text-sm font-bold text-primary" data-bind="user.streak">12</span>
+                        <span class="text-xs text-gray-600">day streak</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <!-- @END_COMPONENT: AppHeader -->
+
+        <!-- Main Content Area -->
+        <main class="pb-20 px-4">
+            
+            <!-- Dashboard Overview -->
+            <!-- @COMPONENT: DashboardOverview [today's progress summary] -->
+            <section class="py-6" data-tab="dashboard" id="dashboard-tab">
+                <h2 class="text-xl font-bold mb-4 text-foreground">Today's Progress</h2>
+                
+                <!-- Quick Stats Cards -->
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <!-- Calories Card -->
+                    <div class="bg-card rounded-lg p-4 shadow-sm border border-border">
+                        <div class="flex items-center justify-between mb-2">
+                            <i class="fas fa-fire text-secondary"></i>
+                            <span class="text-sm text-gray-500">Calories</span>
+                        </div>
+                        <div class="text-2xl font-bold text-foreground" data-bind="daily.calories">1,847</div>
+                        <div class="text-sm text-gray-500">of 2,300</div>
+                        <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+                            <div class="bg-primary h-2 rounded-full" style="width: 80%"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Protein Card -->
+                    <div class="bg-card rounded-lg p-4 shadow-sm border border-border">
+                        <div class="flex items-center justify-between mb-2">
+                            <i class="fas fa-dumbbell text-accent"></i>
+                            <span class="text-sm text-gray-500">Protein</span>
+                        </div>
+                        <div class="text-2xl font-bold text-foreground" data-bind="daily.protein">142g</div>
+                        <div class="text-sm text-gray-500">of 180g</div>
+                        <div class="w-full bg-gray-200 rounded-full h-2 mt-2">
+                            <div class="bg-accent h-2 rounded-full" style="width: 78%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Weekly Progress Chart -->
+                <div class="bg-card rounded-lg p-4 shadow-sm border border-border mb-6">
+                    <h3 class="text-lg font-semibold mb-4 text-foreground">Weekly Progress</h3>
+                    <div class="chart-container bg-gray-50 rounded-lg flex items-end justify-between p-4">
+                        <!-- @FUNCTIONALITY: This should implement Chart.js or similar for weight/muscle tracking -->
+                        <div class="flex flex-col items-center space-y-2">
+                            <div class="w-6 h-16 bg-primary rounded-t" title="Mon"></div>
+                            <span class="text-xs text-gray-500">M</span>
+                        </div>
+                        <div class="flex flex-col items-center space-y-2">
+                            <div class="w-6 h-20 bg-primary rounded-t" title="Tue"></div>
+                            <span class="text-xs text-gray-500">T</span>
+                        </div>
+                        <div class="flex flex-col items-center space-y-2">
+                            <div class="w-6 h-18 bg-primary rounded-t" title="Wed"></div>
+                            <span class="text-xs text-gray-500">W</span>
+                        </div>
+                        <div class="flex flex-col items-center space-y-2">
+                            <div class="w-6 h-22 bg-primary rounded-t" title="Thu"></div>
+                            <span class="text-xs text-gray-500">T</span>
+                        </div>
+                        <div class="flex flex-col items-center space-y-2">
+                            <div class="w-6 h-24 bg-primary rounded-t" title="Fri"></div>
+                            <span class="text-xs text-gray-500">F</span>
+                        </div>
+                        <div class="flex flex-col items-center space-y-2">
+                            <div class="w-6 h-14 bg-gray-300 rounded-t" title="Sat"></div>
+                            <span class="text-xs text-gray-500">S</span>
+                        </div>
+                        <div class="flex flex-col items-center space-y-2">
+                            <div class="w-6 h-12 bg-gray-300 rounded-t" title="Sun"></div>
+                            <span class="text-xs text-gray-500">S</span>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-2 text-center">Workout Completion Rate: 83%</p>
+                </div>
+
+                <!-- Achievement Banner -->
+                <div class="bg-gradient-to-r from-primary to-success p-4 rounded-lg text-white mb-6 celebration-animation">
+                    <div class="flex items-center space-x-3">
+                        <i class="fas fa-trophy text-2xl"></i>
+                        <div>
+                            <h3 class="font-bold">12-Day Streak! 🔥</h3>
+                            <p class="text-sm opacity-90">You're on fire! Keep it up!</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- @END_COMPONENT: DashboardOverview -->
+
+            <!-- Meals Section -->
+            <!-- @COMPONENT: MealsSection [meal tracking and logging] -->
+            <section class="py-6 hidden" data-tab="meals" id="meals-tab">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-bold text-foreground">Today's Meals</h2>
+                    <button class="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium" 
+                            data-event="click:openMealLibrary">
+                        <i class="fas fa-plus mr-2"></i>Add Meal
+                    </button>
+                </div>
+
+                <!-- Meal Categories from Diet Chart -->
+                <!-- @MAP: mealCategories.map(category => ( -->
+                <div class="space-y-4">
+                    <!-- Post-Workout Meal -->
+                    <div class="bg-card rounded-lg p-4 shadow-sm border border-border">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="font-semibold text-foreground">Post-Workout</h3>
+                            <span class="text-sm text-gray-500">within 45 mins</span>
+                        </div>
+                        <div class="bg-success/10 p-3 rounded-lg">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="font-medium text-success-foreground">High-Protein Smoothie</p>
+                                    <p class="text-sm text-gray-600">1 Scoop Whey + 150g Curd + 1/2 Banana</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-sm font-medium text-success">300 kcal</p>
+                                    <p class="text-sm text-gray-500">35g protein</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Breakfast -->
+                    <div class="bg-card rounded-lg p-4 shadow-sm border border-border">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="font-semibold text-foreground">Breakfast</h3>
+                            <span class="text-sm text-gray-500">9:00 AM</span>
+                        </div>
+                        <div class="border-2 border-dashed border-gray-300 p-3 rounded-lg text-center">
+                            <i class="fas fa-plus text-gray-400 text-2xl mb-2"></i>
+                            <p class="text-gray-500 text-sm">Select from meal options</p>
+                            <button class="text-primary text-sm font-medium mt-1" data-event="click:selectBreakfast">
+                                Choose Meal
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Lunch -->
+                    <div class="bg-card rounded-lg p-4 shadow-sm border border-border">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="font-semibold text-foreground">Lunch</h3>
+                            <span class="text-sm text-gray-500">1:00 PM</span>
+                        </div>
+                        <div class="bg-primary/10 p-3 rounded-lg">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="font-medium text-foreground">Rajma Bowl</p>
+                                    <p class="text-sm text-gray-600">1 bowl curry + 1.5 cups Brown Rice + Salad</p>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-sm font-medium text-primary">600 kcal</p>
+                                    <p class="text-sm text-gray-500">25g protein</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Evening Snack -->
+                    <div class="bg-card rounded-lg p-4 shadow-sm border border-border">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="font-semibold text-foreground">Evening Snack</h3>
+                            <span class="text-sm text-gray-500">4:30 PM</span>
+                        </div>
+                        <div class="border-2 border-dashed border-gray-300 p-3 rounded-lg text-center">
+                            <i class="fas fa-plus text-gray-400 text-2xl mb-2"></i>
+                            <p class="text-gray-500 text-sm">Add your snack</p>
+                        </div>
+                    </div>
+
+                    <!-- Dinner -->
+                    <div class="bg-card rounded-lg p-4 shadow-sm border border-border">
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="font-semibold text-foreground">Dinner</h3>
+                            <span class="text-sm text-gray-500">8:00 PM</span>
+                        </div>
+                        <div class="border-2 border-dashed border-gray-300 p-3 rounded-lg text-center">
+                            <i class="fas fa-plus text-gray-400 text-2xl mb-2"></i>
+                            <p class="text-gray-500 text-sm">Plan your dinner</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- @END_MAP )) -->
+
+                <!-- Meal Library Modal Trigger -->
+                <div class="mt-6 bg-gradient-to-r from-primary to-success p-4 rounded-lg text-white">
+                    <h3 class="font-bold mb-2">Quick Access: Meal Library</h3>
+                    <p class="text-sm opacity-90 mb-3">Choose from pre-configured vegetarian meal options</p>
+                    <button class="bg-white text-primary px-4 py-2 rounded-lg font-medium" 
+                            data-event="click:openMealLibrary">
+                        Browse Meal Options
+                    </button>
+                </div>
+            </section>
+            <!-- @END_COMPONENT: MealsSection -->
+
+            <!-- Workouts Section -->
+            <!-- @COMPONENT: WorkoutSection [workout tracking and logging] -->
+            <section class="py-6 hidden" data-tab="workouts" id="workouts-tab">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-bold text-foreground">Workouts</h2>
+                    <button class="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium" 
+                            data-event="click:startWorkout">
+                        <i class="fas fa-play mr-2"></i>Start Workout
+                    </button>
+                </div>
+
+                <!-- Today's Workout Plan -->
+                <div class="bg-card rounded-lg p-4 shadow-sm border border-border mb-6">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="font-semibold text-foreground">Today: PUSH Day</h3>
+                        <span class="bg-primary/10 text-primary px-2 py-1 rounded text-xs font-medium">Day 1</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-4">Chest, Shoulders, Triceps</p>
+                    
+                    <!-- Exercise List -->
+                    <div class="space-y-3">
+                        <!-- @MAP: exercises.map(exercise => ( -->
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-3 h-3 rounded-full bg-primary"></div>
+                                <div>
+                                    <p class="font-medium text-foreground" data-bind="exercise.name">Dumbbell Bench Press</p>
+                                    <p class="text-sm text-gray-500" data-bind="exercise.sets">4 sets × 8-12 reps</p>
+                                </div>
+                            </div>
+                            <i class="fas fa-chevron-right text-gray-400"></i>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-3 h-3 rounded-full bg-gray-300"></div>
+                                <div>
+                                    <p class="font-medium text-foreground">Dumbbell Shoulder Press</p>
+                                    <p class="text-sm text-gray-500">4 sets × 8-12 reps</p>
+                                </div>
+                            </div>
+                            <i class="fas fa-chevron-right text-gray-400"></i>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-3 h-3 rounded-full bg-gray-300"></div>
+                                <div>
+                                    <p class="font-medium text-foreground">Incline Dumbbell Press</p>
+                                    <p class="text-sm text-gray-500">3 sets × 10-15 reps</p>
+                                </div>
+                            </div>
+                            <i class="fas fa-chevron-right text-gray-400"></i>
+                        </div>
+                        <!-- @END_MAP )) -->
+                    </div>
+                </div>
+
+                <!-- Recent Workouts -->
+                <div class="bg-card rounded-lg p-4 shadow-sm border border-border">
+                    <h3 class="font-semibold mb-4 text-foreground">Recent Workouts</h3>
+                    
+                    <!-- @MAP: recentWorkouts.map(workout => ( -->
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between p-3 border-l-4 border-primary bg-primary/5 rounded-r-lg">
+                            <div>
+                                <p class="font-medium text-foreground">PUSH Day</p>
+                                <p class="text-sm text-gray-500">Yesterday • 52 min</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm font-medium text-primary">Complete</p>
+                                <p class="text-xs text-gray-500">7 exercises</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-3 border-l-4 border-accent bg-accent/5 rounded-r-lg">
+                            <div>
+                                <p class="font-medium text-foreground">PULL Day</p>
+                                <p class="text-sm text-gray-500">2 days ago • 48 min</p>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm font-medium text-accent">Complete</p>
+                                <p class="text-xs text-gray-500">7 exercises</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- @END_MAP )) -->
+                </div>
+
+                <!-- Personal Records -->
+                <div class="bg-card rounded-lg p-4 shadow-sm border border-border mt-6">
+                    <h3 class="font-semibold mb-4 text-foreground">Personal Records</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="text-center p-3 bg-secondary/10 rounded-lg">
+                            <i class="fas fa-trophy text-secondary text-xl mb-2"></i>
+                            <p class="text-sm text-gray-600">Bench Press PR</p>
+                            <p class="font-bold text-foreground" data-bind="pr.benchPress">45kg × 8</p>
+                        </div>
+                        <div class="text-center p-3 bg-accent/10 rounded-lg">
+                            <i class="fas fa-medal text-accent text-xl mb-2"></i>
+                            <p class="text-sm text-gray-600">Squat PR</p>
+                            <p class="font-bold text-foreground" data-bind="pr.squat">60kg × 12</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- @END_COMPONENT: WorkoutSection -->
+
+            <!-- Body Metrics Section -->
+            <!-- @COMPONENT: MetricsSection [body metrics tracking] -->
+            <section class="py-6 hidden" data-tab="metrics" id="metrics-tab">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xl font-bold text-foreground">Body Metrics</h2>
+                    <button class="bg-primary text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium" 
+                            data-event="click:logMetrics">
+                        <i class="fas fa-plus mr-2"></i>Log Today
+                    </button>
+                </div>
+
+                <!-- Current Stats Grid (Based on Screenshot) -->
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="bg-card rounded-lg p-4 shadow-sm border border-border">
+                        <div class="flex items-center space-x-2 mb-2">
+                            <i class="fas fa-weight text-primary"></i>
+                            <span class="text-sm text-gray-500">Weight</span>
+                        </div>
+                        <p class="text-2xl font-bold text-foreground" data-bind="metrics.weight">82.70kg</p>
+                    </div>
+                    
+                    <div class="bg-card rounded-lg p-4 shadow-sm border border-border">
+                        <div class="flex items-center space-x-2 mb-2">
+                            <i class="fas fa-calculator text-accent"></i>
+                            <span class="text-sm text-gray-500">BMI</span>
+                        </div>
+                        <p class="text-2xl font-bold text-foreground" data-bind="metrics.bmi">24.7</p>
+                    </div>
+                    
+                    <div class="bg-card rounded-lg p-4 shadow-sm border border-border">
+                        <div class="flex items-center space-x-2 mb-2">
+                            <i class="fas fa-percentage text-secondary"></i>
+                            <span class="text-sm text-gray-500">Body Fat</span>
+                        </div>
+                        <p class="text-2xl font-bold text-secondary" data-bind="metrics.bodyFat">22.9%</p>
+                    </div>
+                    
+                    <div class="bg-card rounded-lg p-4 shadow-sm border border-border">
+                        <div class="flex items-center space-x-2 mb-2">
+                            <i class="fas fa-heartbeat text-success"></i>
+                            <span class="text-sm text-gray-500">Muscle Rate</span>
+                        </div>
+                        <p class="text-2xl font-bold text-success" data-bind="metrics.muscleRate">72.2%</p>
+                    </div>
+                </div>
+
+                <!-- Detailed Metrics List -->
+                <div class="bg-card rounded-lg shadow-sm border border-border overflow-hidden">
+                    <div class="p-4 border-b border-border">
+                        <h3 class="font-semibold text-foreground">Detailed Measurements</h3>
+                    </div>
+                    
+                    <!-- @MAP: detailedMetrics.map(metric => ( -->
+                    <div class="divide-y divide-border">
+                        <div class="flex items-center justify-between p-4">
+                            <div class="flex items-center space-x-3">
+                                <i class="fas fa-weight text-gray-400"></i>
+                                <span class="text-foreground">Fat-free Body Weight</span>
+                            </div>
+                            <span class="font-medium text-foreground" data-bind="metrics.fatFreeWeight">63.8kg</span>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-4">
+                            <div class="flex items-center space-x-3">
+                                <i class="fas fa-layer-group text-gray-400"></i>
+                                <span class="text-foreground">Subcutaneous Fat</span>
+                            </div>
+                            <span class="font-medium text-secondary" data-bind="metrics.subcutaneousFat">15.5%</span>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-4">
+                            <div class="flex items-center space-x-3">
+                                <i class="fas fa-lungs text-gray-400"></i>
+                                <span class="text-foreground">Visceral Fat</span>
+                            </div>
+                            <span class="font-medium text-success" data-bind="metrics.visceralFat">6.4</span>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-4">
+                            <div class="flex items-center space-x-3">
+                                <i class="fas fa-tint text-gray-400"></i>
+                                <span class="text-foreground">Body Water</span>
+                            </div>
+                            <span class="font-medium text-accent" data-bind="metrics.bodyWater">52.4%</span>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-4">
+                            <div class="flex items-center space-x-3">
+                                <i class="fas fa-dumbbell text-gray-400"></i>
+                                <span class="text-foreground">Muscle Mass</span>
+                            </div>
+                            <span class="font-medium text-success" data-bind="metrics.muscleMass">59.7kg</span>
+                        </div>
+                        
+                        <div class="flex items-center justify-between p-4">
+                            <div class="flex items-center space-x-3">
+                                <i class="fas fa-bone text-gray-400"></i>
+                                <span class="text-foreground">Bone Mass</span>
+                            </div>
+                            <span class="font-medium text-foreground" data-bind="metrics.boneMass">3.3kg</span>
+                        </div>
+                    </div>
+                    <!-- @END_MAP )) -->
+                </div>
+
+                <!-- Progress Chart -->
+                <div class="bg-card rounded-lg p-4 shadow-sm border border-border mt-6">
+                    <h3 class="font-semibold mb-4 text-foreground">Progress Trends</h3>
+                    <div class="chart-container bg-gray-50 rounded-lg p-4">
+                        <!-- @FUNCTIONALITY: Implement Chart.js line chart for weight and body fat trends -->
+                        <div class="h-full flex items-center justify-center text-gray-500">
+                            <div class="text-center">
+                                <i class="fas fa-chart-line text-3xl mb-2"></i>
+                                <p>Progress chart will load here</p>
+                                <p class="text-xs">Weight & Body Fat Trends</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <!-- @END_COMPONENT: MetricsSection -->
+
+            <!-- Progress Dashboard -->
+            <!-- @COMPONENT: ProgressDashboard [comprehensive progress visualization] -->
+            <section class="py-6 hidden" data-tab="progress" id="progress-tab">
+                <h2 class="text-xl font-bold mb-4 text-foreground">Progress Dashboard</h2>
+                
+                <!-- Circular Progress Indicators -->
+                <div class="grid grid-cols-3 gap-4 mb-6">
+                    <div class="text-center">
+                        <div class="relative w-20 h-20 mx-auto mb-2">
+                            <!-- @FUNCTIONALITY: Implement SVG circular progress for calories -->
+                            <svg class="w-20 h-20 progress-ring">
+                                <circle cx="40" cy="40" r="36" stroke="#e5e7eb" stroke-width="8" fill="none"/>
+                                <circle cx="40" cy="40" r="36" stroke="var(--primary)" stroke-width="8" fill="none"
+                                        stroke-dasharray="226" stroke-dashoffset="45" stroke-linecap="round"/>
+                            </svg>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <span class="text-sm font-bold text-foreground">80%</span>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-500">Calories</p>
+                    </div>
+                    
+                    <div class="text-center">
+                        <div class="relative w-20 h-20 mx-auto mb-2">
+                            <svg class="w-20 h-20 progress-ring">
+                                <circle cx="40" cy="40" r="36" stroke="#e5e7eb" stroke-width="8" fill="none"/>
+                                <circle cx="40" cy="40" r="36" stroke="var(--accent)" stroke-width="8" fill="none"
+                                        stroke-dasharray="226" stroke-dashoffset="50" stroke-linecap="round"/>
+                            </svg>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <span class="text-sm font-bold text-foreground">78%</span>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-500">Protein</p>
+                    </div>
+                    
+                    <div class="text-center">
+                        <div class="relative w-20 h-20 mx-auto mb-2">
+                            <svg class="w-20 h-20 progress-ring">
+                                <circle cx="40" cy="40" r="36" stroke="#e5e7eb" stroke-width="8" fill="none"/>
+                                <circle cx="40" cy="40" r="36" stroke="var(--success)" stroke-width="8" fill="none"
+                                        stroke-dasharray="226" stroke-dashoffset="68" stroke-linecap="round"/>
+                            </svg>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <span class="text-sm font-bold text-foreground">70%</span>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-500">Workouts</p>
+                    </div>
+                </div>
+
+                <!-- Monthly Overview -->
+                <div class="bg-card rounded-lg p-4 shadow-sm border border-border mb-6">
+                    <h3 class="font-semibold mb-4 text-foreground">This Month</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="text-center p-3 bg-primary/10 rounded-lg">
+                            <p class="text-2xl font-bold text-primary" data-bind="monthly.workoutsCompleted">18</p>
+                            <p class="text-sm text-gray-600">Workouts</p>
+                        </div>
+                        <div class="text-center p-3 bg-secondary/10 rounded-lg">
+                            <p class="text-2xl font-bold text-secondary" data-bind="monthly.avgCalories">2,240</p>
+                            <p class="text-sm text-gray-600">Avg Calories</p>
+                        </div>
+                        <div class="text-center p-3 bg-accent/10 rounded-lg">
+                            <p class="text-2xl font-bold text-accent" data-bind="monthly.avgProtein">165g</p>
+                            <p class="text-sm text-gray-600">Avg Protein</p>
+                        </div>
+                        <div class="text-center p-3 bg-success/10 rounded-lg">
+                            <p class="text-2xl font-bold text-success" data-bind="monthly.weightChange">+2.1kg</p>
+                            <p class="text-sm text-gray-600">Weight Gain</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Achievements -->
+                <div class="bg-card rounded-lg p-4 shadow-sm border border-border">
+                    <h3 class="font-semibold mb-4 text-foreground">Recent Achievements</h3>
+                    <!-- @MAP: achievements.map(achievement => ( -->
+                    <div class="space-y-3">
+                        <div class="flex items-center space-x-3 p-3 bg-primary/5 rounded-lg">
+                            <div class="w-10 h-10 bg-primary rounded-full flex items-center justify-center">
+                                <i class="fas fa-fire text-white"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium text-foreground">12-Day Streak</p>
+                                <p class="text-sm text-gray-500">Consistent daily logging</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-center space-x-3 p-3 bg-secondary/5 rounded-lg">
+                            <div class="w-10 h-10 bg-secondary rounded-full flex items-center justify-center">
+                                <i class="fas fa-trophy text-white"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium text-foreground">New PR Set</p>
+                                <p class="text-sm text-gray-500">Bench Press: 45kg × 8</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- @END_MAP )) -->
+                </div>
+            </section>
+            <!-- @END_COMPONENT: ProgressDashboard -->
+
+            <!-- Profile Section -->
+            <!-- @COMPONENT: ProfileSection [user settings and preferences] -->
+            <section class="py-6 hidden" data-tab="profile" id="profile-tab">
+                <h2 class="text-xl font-bold mb-4 text-foreground">Profile</h2>
+                
+                <!-- User Info Card -->
+                <div class="bg-card rounded-lg p-4 shadow-sm border border-border mb-6">
+                    <div class="flex items-center space-x-4">
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&w=80&h=80&fit=crop&crop=face" 
+                             alt="User Profile" class="w-16 h-16 rounded-full ring-4 ring-primary/20" data-mock="true">
+                        <div>
+                            <h3 class="text-lg font-semibold text-foreground" data-bind="user.name">Alex Kumar</h3>
+                            <p class="text-gray-500" data-bind="user.goal">Building Muscle</p>
+                            <p class="text-sm text-primary" data-bind="user.level">Intermediate Level</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Options -->
+                <div class="bg-card rounded-lg shadow-sm border border-border overflow-hidden">
+                    <div class="p-4 border-b border-border">
+                        <h3 class="font-semibold text-foreground">Settings</h3>
+                    </div>
+                    
+                    <div class="divide-y divide-border">
+                        <button class="w-full flex items-center justify-between p-4 hover:bg-gray-50" 
+                                data-event="click:editGoals">
+                            <div class="flex items-center space-x-3">
+                                <i class="fas fa-target text-primary"></i>
+                                <span class="text-foreground">Goals & Targets</span>
+                            </div>
+                            <i class="fas fa-chevron-right text-gray-400"></i>
+                        </button>
+                        
+                        <button class="w-full flex items-center justify-between p-4 hover:bg-gray-50" 
+                                data-event="click:manageReminders">
+                            <div class="flex items-center space-x-3">
+                                <i class="fas fa-bell text-accent"></i>
+                                <span class="text-foreground">Reminders</span>
+                            </div>
+                            <i class="fas fa-chevron-right text-gray-400"></i>
+                        </button>
+                        
+                        <button class="w-full flex items-center justify-between p-4 hover:bg-gray-50" 
+                                data-event="click:exportData">
+                            <div class="flex items-center space-x-3">
+                                <i class="fas fa-download text-success"></i>
+                                <span class="text-foreground">Export Data</span>
+                            </div>
+                            <i class="fas fa-chevron-right text-gray-400"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- App Info -->
+                <div class="mt-6 text-center text-gray-500">
+                    <p class="text-sm">FitTracker Pro v1.0</p>
+                    <p class="text-xs mt-1">Your comprehensive fitness companion</p>
+                </div>
+            </section>
+            <!-- @END_COMPONENT: ProfileSection -->
+
+        </main>
+
+        <!-- Floating Action Button -->
+        <!-- @COMPONENT: FloatingActionButton [quick access to logging] -->
+        <button class="fixed bottom-24 right-4 w-14 h-14 bg-primary text-primary-foreground rounded-full shadow-lg flex items-center justify-center z-40 hover:shadow-xl transition-shadow" 
+                data-event="click:quickLog">
+            <i class="fas fa-plus text-xl"></i>
+        </button>
+        <!-- @END_COMPONENT: FloatingActionButton -->
+
+        <!-- Bottom Navigation -->
+        <!-- @COMPONENT: BottomNavigation [primary navigation] -->
+        <nav class="fixed bottom-0 left-0 right-0 bg-card border-t border-border z-50">
+            <div class="max-w-md mx-auto flex">
+                <button class="flex-1 py-3 px-2 text-center active-tab" data-tab="dashboard" data-event="click:switchTab">
+                    <i class="fas fa-home text-lg mb-1 block text-primary"></i>
+                    <span class="text-xs text-primary font-medium">Dashboard</span>
+                </button>
+                
+                <button class="flex-1 py-3 px-2 text-center" data-tab="meals" data-event="click:switchTab">
+                    <i class="fas fa-utensils text-lg mb-1 block text-gray-400"></i>
+                    <span class="text-xs text-gray-500">Meals</span>
+                </button>
+                
+                <button class="flex-1 py-3 px-2 text-center" data-tab="workouts" data-event="click:switchTab">
+                    <i class="fas fa-dumbbell text-lg mb-1 block text-gray-400"></i>
+                    <span class="text-xs text-gray-500">Workouts</span>
+                </button>
+                
+                <button class="flex-1 py-3 px-2 text-center" data-tab="metrics" data-event="click:switchTab">
+                    <i class="fas fa-chart-bar text-lg mb-1 block text-gray-400"></i>
+                    <span class="text-xs text-gray-500">Metrics</span>
+                </button>
+                
+                <button class="flex-1 py-3 px-2 text-center" data-tab="profile" data-event="click:switchTab">
+                    <i class="fas fa-user text-lg mb-1 block text-gray-400"></i>
+                    <span class="text-xs text-gray-500">Profile</span>
+                </button>
+            </div>
+        </nav>
+        <!-- @END_COMPONENT: BottomNavigation -->
+
+        <!-- Meal Library Modal -->
+        <!-- @COMPONENT: MealLibraryModal [meal selection from diet chart] -->
+        <div id="meal-library-modal" class="fixed inset-0 bg-black/50 z-60 hidden">
+            <div class="absolute bottom-0 left-0 right-0 bg-card rounded-t-2xl max-w-md mx-auto max-h-[80vh] overflow-y-auto">
+                <div class="p-4 border-b border-border sticky top-0 bg-card">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-foreground">Vegetarian Meal Library</h3>
+                        <button class="text-gray-500" data-event="click:closeMealLibrary">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-1">Choose from pre-configured high-protein meals</p>
+                </div>
+                
+                <div class="p-4 space-y-4">
+                    <!-- Breakfast Options -->
+                    <div>
+                        <h4 class="font-medium text-foreground mb-3 flex items-center">
+                            <i class="fas fa-sun text-secondary mr-2"></i>
+                            Breakfast Options
+                        </h4>
+                        <!-- @MAP: breakfastOptions.map(meal => ( -->
+                        <div class="space-y-2">
+                            <button class="w-full text-left p-3 border border-border rounded-lg hover:bg-primary/5" 
+                                    data-event="click:selectMeal" data-meal-id="besan-chilla">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <p class="font-medium text-foreground">Besan Chilla</p>
+                                        <p class="text-sm text-gray-600">2 medium chillas + 150g Curd</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-sm font-medium text-primary">500 kcal</p>
+                                        <p class="text-xs text-gray-500">30g protein</p>
+                                    </div>
+                                </div>
+                            </button>
+                            
+                            <button class="w-full text-left p-3 border border-border rounded-lg hover:bg-primary/5" 
+                                    data-event="click:selectMeal" data-meal-id="sprouted-dal">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <p class="font-medium text-foreground">Sprouted Dal Salad</p>
+                                        <p class="text-sm text-gray-600">250g sprouted moong + 50g Peanuts</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-sm font-medium text-primary">450 kcal</p>
+                                        <p class="text-xs text-gray-500">25g protein</p>
+                                    </div>
+                                </div>
+                            </button>
+                            
+                            <button class="w-full text-left p-3 border border-border rounded-lg hover:bg-primary/5" 
+                                    data-event="click:selectMeal" data-meal-id="paneer-poha">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <p class="font-medium text-foreground">Paneer Poha</p>
+                                        <p class="text-sm text-gray-600">Large plate Poha + 100g Paneer</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-sm font-medium text-primary">520 kcal</p>
+                                        <p class="text-xs text-gray-500">22g protein</p>
+                                    </div>
+                                </div>
+                            </button>
+                        </div>
+                        <!-- @END_MAP )) -->
+                    </div>
+
+                    <!-- Lunch Options -->
+                    <div>
+                        <h4 class="font-medium text-foreground mb-3 flex items-center">
+                            <i class="fas fa-sun text-secondary mr-2"></i>
+                            Lunch Options
+                        </h4>
+                        <!-- @MAP: lunchOptions.map(meal => ( -->
+                        <div class="space-y-2">
+                            <button class="w-full text-left p-3 border border-border rounded-lg hover:bg-primary/5" 
+                                    data-event="click:selectMeal" data-meal-id="rajma-bowl">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <p class="font-medium text-foreground">Rajma/Chana Bowl</p>
+                                        <p class="text-sm text-gray-600">1 bowl curry + 1.5 cups Brown Rice</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-sm font-medium text-primary">600 kcal</p>
+                                        <p class="text-xs text-gray-500">25g protein</p>
+                                    </div>
+                                </div>
+                            </button>
+                            
+                            <button class="w-full text-left p-3 border border-border rounded-lg hover:bg-primary/5" 
+                                    data-event="click:selectMeal" data-meal-id="soya-curry">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <p class="font-medium text-foreground">Soya Chunk Curry</p>
+                                        <p class="text-sm text-gray-600">60g Soya Chunks + 2 Rotis + 100g Curd</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-sm font-medium text-primary">580 kcal</p>
+                                        <p class="text-xs text-gray-500">35g protein</p>
+                                    </div>
+                                </div>
+                            </button>
+                        </div>
+                        <!-- @END_MAP )) -->
+                    </div>
+
+                    <!-- Evening Snack Options -->
+                    <div>
+                        <h4 class="font-medium text-foreground mb-3 flex items-center">
+                            <i class="fas fa-cookie-bite text-secondary mr-2"></i>
+                            Evening Snack Options
+                        </h4>
+                        <!-- @MAP: snackOptions.map(meal => ( -->
+                        <div class="space-y-2">
+                            <button class="w-full text-left p-3 border border-border rounded-lg hover:bg-primary/5" 
+                                    data-event="click:selectMeal" data-meal-id="roasted-chana">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <p class="font-medium text-foreground">Roasted Chana & Nuts</p>
+                                        <p class="text-sm text-gray-600">1 cup Chana + Peanuts/Almonds</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-sm font-medium text-primary">350 kcal</p>
+                                        <p class="text-xs text-gray-500">15g protein</p>
+                                    </div>
+                                </div>
+                            </button>
+                            
+                            <button class="w-full text-left p-3 border border-border rounded-lg hover:bg-primary/5" 
+                                    data-event="click:selectMeal" data-meal-id="greek-yogurt">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <p class="font-medium text-foreground">Greek Yogurt</p>
+                                        <p class="text-sm text-gray-600">200g Hung Curd</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-sm font-medium text-primary">120 kcal</p>
+                                        <p class="text-xs text-gray-500">20g protein</p>
+                                    </div>
+                                </div>
+                            </button>
+                        </div>
+                        <!-- @END_MAP )) -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- @END_COMPONENT: MealLibraryModal -->
+
+        <!-- Quick Log Modal -->
+        <!-- @COMPONENT: QuickLogModal [quick logging interface] -->
+        <div id="quick-log-modal" class="fixed inset-0 bg-black/50 z-60 hidden">
+            <div class="absolute bottom-0 left-0 right-0 bg-card rounded-t-2xl max-w-md mx-auto">
+                <div class="p-4 border-b border-border">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-semibold text-foreground">Quick Log</h3>
+                        <button class="text-gray-500" data-event="click:closeQuickLog">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="p-4 space-y-4">
+                    <button class="w-full flex items-center space-x-3 p-4 bg-primary/10 rounded-lg border border-primary/20" 
+                            data-event="click:logMeal">
+                        <i class="fas fa-utensils text-primary text-xl"></i>
+                        <div class="text-left">
+                            <p class="font-medium text-foreground">Log a Meal</p>
+                            <p class="text-sm text-gray-500">Add calories and protein</p>
+                        </div>
+                    </button>
+                    
+                    <button class="w-full flex items-center space-x-3 p-4 bg-accent/10 rounded-lg border border-accent/20" 
+                            data-event="click:logWorkout">
+                        <i class="fas fa-dumbbell text-accent text-xl"></i>
+                        <div class="text-left">
+                            <p class="font-medium text-foreground">Log Workout</p>
+                            <p class="text-sm text-gray-500">Record your training</p>
+                        </div>
+                    </button>
+                    
+                    <button class="w-full flex items-center space-x-3 p-4 bg-secondary/10 rounded-lg border border-secondary/20" 
+                            data-event="click:logMetrics">
+                        <i class="fas fa-weight text-secondary text-xl"></i>
+                        <div class="text-left">
+                            <p class="font-medium text-foreground">Body Metrics</p>
+                            <p class="text-sm text-gray-500">Track your measurements</p>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- @END_COMPONENT: QuickLogModal -->
+
+        <!-- Success Animation Overlay -->
+        <!-- @COMPONENT: SuccessAnimation [celebration animations] -->
+        <div id="success-overlay" class="fixed inset-0 pointer-events-none z-70 hidden">
+            <div class="absolute inset-0 flex items-center justify-center">
+                <div class="text-center celebration-animation">
+                    <div class="w-20 h-20 bg-success rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-check text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-foreground mb-2">Awesome! 🎉</h3>
+                    <p class="text-gray-600">Keep up the great work!</p>
+                </div>
+            </div>
+        </div>
+        <!-- @END_COMPONENT: SuccessAnimation -->
+
+    </div>
+    <!-- @END_COMPONENT: MobileApp -->
+
+    <script>
+        (function() {
+            // Tab switching functionality
+            const tabs = document.querySelectorAll('[data-tab]');
+            const sections = document.querySelectorAll('[data-tab]');
+            
+            function switchTab(targetTab) {
+                // Hide all sections
+                sections.forEach(section => {
+                    if (section.id && section.id.includes('-tab')) {
+                        section.classList.add('hidden');
+                    }
+                });
+                
+                // Remove active state from all nav buttons
+                tabs.forEach(tab => {
+                    if (tab.tagName === 'BUTTON') {
+                        const icon = tab.querySelector('i');
+                        const text = tab.querySelector('span');
+                        if (icon) icon.classList.remove('text-primary');
+                        if (icon) icon.classList.add('text-gray-400');
+                        if (text) text.classList.remove('text-primary', 'font-medium');
+                        if (text) text.classList.add('text-gray-500');
+                        tab.classList.remove('active-tab');
+                    }
+                });
+                
+                // Show target section
+                const targetSection = document.getElementById(targetTab + '-tab');
+                if (targetSection) {
+                    targetSection.classList.remove('hidden');
+                }
+                
+                // Update active nav button
+                const activeButton = document.querySelector(`[data-tab="${targetTab}"]`);
+                if (activeButton && activeButton.tagName === 'BUTTON') {
+                    const icon = activeButton.querySelector('i');
+                    const text = activeButton.querySelector('span');
+                    if (icon) {
+                        icon.classList.remove('text-gray-400');
+                        icon.classList.add('text-primary');
+                    }
+                    if (text) {
+                        text.classList.remove('text-gray-500');
+                        text.classList.add('text-primary', 'font-medium');
+                    }
+                    activeButton.classList.add('active-tab');
+                }
+            }
+            
+            // Add event listeners for tab switching
+            document.addEventListener('click', function(e) {
+                const tabButton = e.target.closest('[data-event*="switchTab"]');
+                if (tabButton) {
+                    const targetTab = tabButton.getAttribute('data-tab');
+                    switchTab(targetTab);
+                }
+                
+                // Modal controls
+                if (e.target.closest('[data-event*="openMealLibrary"]')) {
+                    document.getElementById('meal-library-modal').classList.remove('hidden');
+                }
+                
+                if (e.target.closest('[data-event*="closeMealLibrary"]')) {
+                    document.getElementById('meal-library-modal').classList.add('hidden');
+                }
+                
+                if (e.target.closest('[data-event*="quickLog"]')) {
+                    document.getElementById('quick-log-modal').classList.remove('hidden');
+                }
+                
+                if (e.target.closest('[data-event*="closeQuickLog"]')) {
+                    document.getElementById('quick-log-modal').classList.add('hidden');
+                }
+                
+                // Meal selection
+                if (e.target.closest('[data-event*="selectMeal"]')) {
+                    // TODO: Implement meal selection logic
+                    document.getElementById('meal-library-modal').classList.add('hidden');
+                    showSuccessAnimation();
+                }
+                
+                // Other quick actions
+                if (e.target.closest('[data-event*="logMeal"]') || 
+                    e.target.closest('[data-event*="logWorkout"]') || 
+                    e.target.closest('[data-event*="logMetrics"]')) {
+                    document.getElementById('quick-log-modal').classList.add('hidden');
+                    showSuccessAnimation();
+                }
+            });
+            
+            function showSuccessAnimation() {
+                const overlay = document.getElementById('success-overlay');
+                overlay.classList.remove('hidden');
+                setTimeout(() => {
+                    overlay.classList.add('hidden');
+                }, 2000);
+            }
+            
+            // Initialize with dashboard tab
+            switchTab('dashboard');
+            
+            // TODO: Implement real data binding, API integration, and chart libraries
+            // TODO: Add local storage for offline capability
+            // TODO: Implement form validation for meal and workout entries
+            // TODO: Add streak tracking and achievement system
+            // TODO: Implement data export functionality
+            // TODO: Add search functionality for meals and exercises
+        })();
+    </script>
+</body>
+</html>

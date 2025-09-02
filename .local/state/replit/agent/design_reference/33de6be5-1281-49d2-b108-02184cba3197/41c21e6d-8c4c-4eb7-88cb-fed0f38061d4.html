@@ -1,0 +1,690 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitTracker - Complete Fitness & Nutrition App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+    tailwind.config = {
+        theme: {
+            extend: {
+                borderRadius: {
+                    lg: "var(--radius)",
+                    md: "calc(var(--radius) - 2px)",
+                    sm: "calc(var(--radius) - 4px)",
+                },
+                colors: {
+                    background: "var(--background)",
+                    foreground: "var(--foreground)",
+                    card: {
+                        DEFAULT: "var(--card)",
+                        foreground: "var(--card-foreground)",
+                    },
+                    popover: {
+                        DEFAULT: "var(--popover)",
+                        foreground: "var(--popover-foreground)",
+                    },
+                    primary: {
+                        DEFAULT: "var(--primary)",
+                        foreground: "var(--primary-foreground)",
+                    },
+                    secondary: {
+                        DEFAULT: "var(--secondary)",
+                        foreground: "var(--secondary-foreground)",
+                    },
+                    muted: {
+                        DEFAULT: "var(--muted)",
+                        foreground: "var(--muted-foreground)",
+                    },
+                    accent: {
+                        DEFAULT: "var(--accent)",
+                        foreground: "var(--accent-foreground)",
+                    },
+                    destructive: {
+                        DEFAULT: "var(--destructive)",
+                        foreground: "var(--destructive-foreground)",
+                    },
+                    border: "var(--border)",
+                    input: "var(--input)",
+                    ring: "var(--ring)",
+                },
+                fontFamily: {
+                    sans: ["Roboto", "sans-serif"],
+                }
+            },
+        }
+    };
+    </script>
+    <style>
+        :root {
+            --background: hsl(210 40% 98%);
+            --foreground: hsl(222.2 84% 4.9%);
+            --card: hsl(0 0% 100%);
+            --card-foreground: hsl(222.2 84% 4.9%);
+            --popover: hsl(0 0% 100%);
+            --popover-foreground: hsl(222.2 84% 4.9%);
+            --primary: hsl(122 40% 49%);
+            --primary-foreground: hsl(0 0% 100%);
+            --secondary: hsl(19 91% 60%);
+            --secondary-foreground: hsl(0 0% 100%);
+            --muted: hsl(210 40% 96%);
+            --muted-foreground: hsl(215.4 16.3% 46.9%);
+            --accent: hsl(207 90% 54%);
+            --accent-foreground: hsl(0 0% 100%);
+            --destructive: hsl(0 84.2% 60.2%);
+            --destructive-foreground: hsl(0 0% 100%);
+            --border: hsl(214.3 31.8% 91.4%);
+            --input: hsl(214.3 31.8% 91.4%);
+            --ring: hsl(122 40% 49%);
+            --radius: 12px;
+        }
+
+        .progress-circle {
+            stroke-linecap: round;
+            transition: stroke-dasharray 0.3s ease-in-out;
+        }
+
+        .celebration-animation {
+            animation: celebrate 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes celebrate {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        .float-up {
+            animation: floatUp 2s ease-out forwards;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-50px) scale(1.2); opacity: 0; }
+        }
+
+        .shimmer {
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .smooth-transition {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .tab-transition {
+            transition: all 0.2s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-background font-sans">
+    <!-- @COMPONENT: App Container -->
+    <div class="max-w-md mx-auto bg-background min-h-screen relative overflow-hidden">
+        
+        <!-- @COMPONENT: Header with User Info -->
+        <header class="bg-card px-4 pt-12 pb-6 shadow-sm border-b border-border">
+            <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center space-x-3">
+                    <!-- Profile picture with online status -->
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&w=150&h=150&fit=crop&crop=face" alt="User profile" class="w-12 h-12 rounded-full border-2 border-primary">
+                        <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-primary rounded-full border-2 border-card"></div>
+                    </div>
+                    <div>
+                        <h1 class="text-lg font-semibold text-foreground" data-bind="user.name">Welcome back, Alex!</h1>
+                        <p class="text-sm text-muted-foreground" data-bind="user.currentStreak">🔥 7 day streak</p>
+                    </div>
+                </div>
+                <button class="w-10 h-10 rounded-full bg-muted flex items-center justify-center" data-event="click:showNotifications">
+                    <i class="fas fa-bell text-muted-foreground"></i>
+                    <span class="absolute top-2 right-2 w-2 h-2 bg-secondary rounded-full"></span>
+                </button>
+            </div>
+            
+            <!-- Daily Summary Cards -->
+            <div class="grid grid-cols-3 gap-3">
+                <div class="bg-primary/10 rounded-lg p-3 text-center">
+                    <p class="text-xs text-primary font-medium">Weight</p>
+                    <p class="text-lg font-bold text-primary" data-bind="metrics.weight">82.7kg</p>
+                    <p class="text-xs text-muted-foreground">-0.3kg</p>
+                </div>
+                <div class="bg-accent/10 rounded-lg p-3 text-center">
+                    <p class="text-xs text-accent font-medium">Workouts</p>
+                    <p class="text-lg font-bold text-accent" data-bind="workouts.thisWeek">4/6</p>
+                    <p class="text-xs text-muted-foreground">This week</p>
+                </div>
+                <div class="bg-secondary/10 rounded-lg p-3 text-center">
+                    <p class="text-xs text-secondary font-medium">Protein</p>
+                    <p class="text-lg font-bold text-secondary" data-bind="nutrition.proteinPercent">87%</p>
+                    <p class="text-xs text-muted-foreground">Goal hit</p>
+                </div>
+            </div>
+        </header>
+
+        <!-- @COMPONENT: Progress Section -->
+        <section class="px-4 py-6 bg-card">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-semibold text-foreground">Today's Progress</h2>
+                <span class="text-sm text-muted-foreground" data-bind="currentDate">March 1, 2024</span>
+            </div>
+
+            <!-- Circular Progress Indicators -->
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <!-- Calories Progress -->
+                <div class="bg-muted/30 rounded-xl p-4 text-center">
+                    <div class="relative w-20 h-20 mx-auto mb-2">
+                        <svg class="w-20 h-20 transform -rotate-90" viewBox="0 0 80 80">
+                            <circle cx="40" cy="40" r="32" stroke="currentColor" stroke-width="6" fill="none" class="text-muted opacity-20"/>
+                            <circle cx="40" cy="40" r="32" stroke="currentColor" stroke-width="6" fill="none" 
+                                    class="text-primary progress-circle" 
+                                    stroke-dasharray="125.6" 
+                                    stroke-dashoffset="31.4" 
+                                    data-bind="calories.progress"/>
+                        </svg>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <span class="text-sm font-bold text-foreground" data-bind="calories.percentage">75%</span>
+                        </div>
+                    </div>
+                    <p class="text-xs text-muted-foreground">Calories</p>
+                    <p class="text-sm font-semibold text-foreground" data-bind="calories.consumed">1,725 / 2,300</p>
+                </div>
+
+                <!-- Protein Progress -->
+                <div class="bg-muted/30 rounded-xl p-4 text-center">
+                    <div class="relative w-20 h-20 mx-auto mb-2">
+                        <svg class="w-20 h-20 transform -rotate-90" viewBox="0 0 80 80">
+                            <circle cx="40" cy="40" r="32" stroke="currentColor" stroke-width="6" fill="none" class="text-muted opacity-20"/>
+                            <circle cx="40" cy="40" r="32" stroke="currentColor" stroke-width="6" fill="none" 
+                                    class="text-secondary progress-circle" 
+                                    stroke-dasharray="109.8" 
+                                    stroke-dashoffset="15.7" 
+                                    data-bind="protein.progress"/>
+                        </svg>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <span class="text-sm font-bold text-foreground" data-bind="protein.percentage">87%</span>
+                        </div>
+                    </div>
+                    <p class="text-xs text-muted-foreground">Protein</p>
+                    <p class="text-sm font-semibold text-foreground" data-bind="protein.consumed">157g / 180g</p>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="grid grid-cols-2 gap-3">
+                <button class="bg-primary text-primary-foreground rounded-xl p-4 flex items-center justify-center space-x-2 smooth-transition hover:bg-primary/90" 
+                        data-event="click:logMeal">
+                    <i class="fas fa-utensils"></i>
+                    <span class="font-medium">Log Meal</span>
+                </button>
+                <button class="bg-accent text-accent-foreground rounded-xl p-4 flex items-center justify-center space-x-2 smooth-transition hover:bg-accent/90" 
+                        data-event="click:logWorkout">
+                    <i class="fas fa-dumbbell"></i>
+                    <span class="font-medium">Log Workout</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- @COMPONENT: Main Content Area -->
+        <main class="px-4 py-2 space-y-6 pb-24">
+            
+            <!-- Today's Meals Section -->
+            <section class="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
+                <div class="p-4 border-b border-border">
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-semibold text-foreground flex items-center">
+                            <i class="fas fa-utensils text-primary mr-2"></i>
+                            Today's Meals
+                        </h3>
+                        <button class="text-primary text-sm font-medium" data-event="click:viewAllMeals">View All</button>
+                    </div>
+                </div>
+                
+                <!-- @MAP: meals.map(meal => ( -->
+                <div class="divide-y divide-border">
+                    <!-- Breakfast logged -->
+                    <div class="p-4 flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-coffee text-primary"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium text-foreground" data-bind="meal.name">Besan Chilla with Curd</p>
+                                <p class="text-sm text-muted-foreground" data-bind="meal.details">500 cal • 30g protein</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
+                                <i class="fas fa-check mr-1"></i>
+                                Logged
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Lunch logged -->
+                    <div class="p-4 flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center">
+                                <i class="fas fa-bowl-rice text-primary"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium text-foreground" data-bind="meal.name">Rajma Bowl with Rice</p>
+                                <p class="text-sm text-muted-foreground" data-bind="meal.details">600 cal • 25g protein</p>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-primary/10 text-primary">
+                                <i class="fas fa-check mr-1"></i>
+                                Logged
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Dinner pending -->
+                    <div class="p-4 flex items-center justify-between">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-muted rounded-lg flex items-center justify-center">
+                                <i class="fas fa-moon text-muted-foreground"></i>
+                            </div>
+                            <div>
+                                <p class="font-medium text-muted-foreground" data-bind="meal.name">Dinner</p>
+                                <p class="text-sm text-muted-foreground">Not logged yet</p>
+                            </div>
+                        </div>
+                        <button class="px-3 py-1 bg-primary text-primary-foreground rounded-lg text-sm font-medium" 
+                                data-event="click:logDinner">
+                            + Add
+                        </button>
+                    </div>
+                </div>
+                <!-- @END_MAP -->
+            </section>
+
+            <!-- Recent Workouts Section -->
+            <section class="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
+                <div class="p-4 border-b border-border">
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-semibold text-foreground flex items-center">
+                            <i class="fas fa-dumbbell text-accent mr-2"></i>
+                            Recent Workouts
+                        </h3>
+                        <button class="text-accent text-sm font-medium" data-event="click:viewAllWorkouts">View All</button>
+                    </div>
+                </div>
+                
+                <!-- @MAP: workouts.map(workout => ( -->
+                <div class="divide-y divide-border">
+                    <!-- Today's workout -->
+                    <div class="p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-accent/10 rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-fire text-accent"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-foreground" data-bind="workout.name">Push Day (Chest, Shoulders, Triceps)</p>
+                                    <p class="text-sm text-muted-foreground" data-bind="workout.time">Today • 45 minutes</p>
+                                </div>
+                            </div>
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-accent/10 text-accent">
+                                Completed
+                            </span>
+                        </div>
+                        <div class="ml-13 grid grid-cols-3 gap-2 text-xs">
+                            <div class="text-center">
+                                <p class="text-muted-foreground">Exercises</p>
+                                <p class="font-semibold text-foreground" data-bind="workout.exercises">7</p>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-muted-foreground">Sets</p>
+                                <p class="font-semibold text-foreground" data-bind="workout.sets">23</p>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-muted-foreground">Volume</p>
+                                <p class="font-semibold text-foreground" data-bind="workout.volume">2,450kg</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Yesterday's workout -->
+                    <div class="p-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-muted rounded-lg flex items-center justify-center">
+                                    <i class="fas fa-check text-muted-foreground"></i>
+                                </div>
+                                <div>
+                                    <p class="font-medium text-foreground" data-bind="workout.name">Pull Day (Back, Biceps)</p>
+                                    <p class="text-sm text-muted-foreground" data-bind="workout.time">Yesterday • 42 minutes</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ml-13 grid grid-cols-3 gap-2 text-xs">
+                            <div class="text-center">
+                                <p class="text-muted-foreground">Exercises</p>
+                                <p class="font-semibold text-foreground" data-bind="workout.exercises">6</p>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-muted-foreground">Sets</p>
+                                <p class="font-semibold text-foreground" data-bind="workout.sets">20</p>
+                            </div>
+                            <div class="text-center">
+                                <p class="text-muted-foreground">Volume</p>
+                                <p class="font-semibold text-foreground" data-bind="workout.volume">2,180kg</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- @END_MAP -->
+            </section>
+
+            <!-- Body Metrics Section -->
+            <section class="bg-card rounded-xl shadow-sm border border-border overflow-hidden">
+                <div class="p-4 border-b border-border">
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-semibold text-foreground flex items-center">
+                            <i class="fas fa-chart-line text-secondary mr-2"></i>
+                            Body Metrics
+                        </h3>
+                        <button class="text-secondary text-sm font-medium" data-event="click:updateMetrics">Update</button>
+                    </div>
+                </div>
+                
+                <div class="p-4">
+                    <!-- Weight Progress Chart Placeholder -->
+                    <div class="mb-4">
+                        <!-- Simple chart representation showing weight progress -->
+                        <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&w=400&h=200&fit=crop" alt="Weight progress chart showing downward trend" class="w-full h-32 object-cover rounded-lg bg-muted">
+                    </div>
+                    
+                    <!-- Key Metrics Grid -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="text-center">
+                            <p class="text-xs text-muted-foreground">Weight</p>
+                            <p class="text-lg font-bold text-foreground" data-bind="metrics.weight">82.7kg</p>
+                            <p class="text-xs text-primary">-0.3kg this week</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-xs text-muted-foreground">Body Fat</p>
+                            <p class="text-lg font-bold text-foreground" data-bind="metrics.bodyFat">22.9%</p>
+                            <p class="text-xs text-secondary">-0.5% this month</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-xs text-muted-foreground">Muscle Rate</p>
+                            <p class="text-lg font-bold text-foreground" data-bind="metrics.muscleRate">72.2%</p>
+                            <p class="text-xs text-primary">+1.2% this month</p>
+                        </div>
+                        <div class="text-center">
+                            <p class="text-xs text-muted-foreground">BMI</p>
+                            <p class="text-lg font-bold text-foreground" data-bind="metrics.bmi">24.7</p>
+                            <p class="text-xs text-muted-foreground">Normal</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- @COMPONENT: Bottom Navigation -->
+        <nav class="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-md bg-card border-t border-border px-4 py-3">
+            <div class="flex items-center justify-around">
+                <button class="flex flex-col items-center space-y-1 tab-transition" data-tab="dashboard">
+                    <i class="fas fa-home text-primary text-lg"></i>
+                    <span class="text-xs font-medium text-primary">Dashboard</span>
+                </button>
+                <button class="flex flex-col items-center space-y-1 tab-transition" data-tab="nutrition">
+                    <i class="fas fa-utensils text-muted-foreground text-lg"></i>
+                    <span class="text-xs text-muted-foreground">Nutrition</span>
+                </button>
+                <button class="flex flex-col items-center space-y-1 tab-transition" data-tab="workouts">
+                    <i class="fas fa-dumbbell text-muted-foreground text-lg"></i>
+                    <span class="text-xs text-muted-foreground">Workouts</span>
+                </button>
+                <button class="flex flex-col items-center space-y-1 tab-transition" data-tab="progress">
+                    <i class="fas fa-chart-line text-muted-foreground text-lg"></i>
+                    <span class="text-xs text-muted-foreground">Progress</span>
+                </button>
+                <button class="flex flex-col items-center space-y-1 tab-transition" data-tab="more">
+                    <i class="fas fa-bars text-muted-foreground text-lg"></i>
+                    <span class="text-xs text-muted-foreground">More</span>
+                </button>
+            </div>
+        </nav>
+
+        <!-- @COMPONENT: Floating Action Button -->
+        <button class="fixed bottom-20 right-4 w-14 h-14 bg-primary text-primary-foreground rounded-full shadow-lg flex items-center justify-center smooth-transition hover:scale-110" 
+                data-event="click:quickAdd">
+            <i class="fas fa-plus text-xl"></i>
+        </button>
+
+        <!-- @COMPONENT: Quick Add Modal (Hidden by default) -->
+        <div id="quickAddModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden">
+            <div class="absolute bottom-0 left-0 right-0 bg-card rounded-t-3xl p-6 max-w-md mx-auto">
+                <div class="w-12 h-1 bg-muted rounded-full mx-auto mb-6"></div>
+                <h3 class="text-lg font-semibold text-foreground mb-4">Quick Add</h3>
+                
+                <div class="space-y-3">
+                    <button class="w-full bg-primary/10 text-primary rounded-xl p-4 flex items-center space-x-3" data-event="click:addMeal">
+                        <i class="fas fa-utensils"></i>
+                        <span class="font-medium">Log Meal</span>
+                    </button>
+                    <button class="w-full bg-accent/10 text-accent rounded-xl p-4 flex items-center space-x-3" data-event="click:addWorkout">
+                        <i class="fas fa-dumbbell"></i>
+                        <span class="font-medium">Log Workout</span>
+                    </button>
+                    <button class="w-full bg-secondary/10 text-secondary rounded-xl p-4 flex items-center space-x-3" data-event="click:addMetrics">
+                        <i class="fas fa-weight"></i>
+                        <span class="font-medium">Update Body Metrics</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- @COMPONENT: Meal Library Modal (Hidden by default) -->
+        <div id="mealLibraryModal" class="fixed inset-0 bg-card z-50 transform translate-y-full transition-transform duration-300">
+            <div class="h-full flex flex-col">
+                <!-- Header -->
+                <div class="flex items-center justify-between p-4 border-b border-border">
+                    <h3 class="text-lg font-semibold text-foreground">Meal Library</h3>
+                    <button class="w-8 h-8 rounded-full bg-muted flex items-center justify-center" data-event="click:closeMealLibrary">
+                        <i class="fas fa-times text-muted-foreground"></i>
+                    </button>
+                </div>
+
+                <!-- Search -->
+                <div class="p-4">
+                    <div class="relative">
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground"></i>
+                        <input type="text" placeholder="Search meals..." class="w-full pl-10 pr-4 py-3 bg-muted rounded-xl border-none focus:ring-2 focus:ring-primary">
+                    </div>
+                </div>
+
+                <!-- Meal Categories -->
+                <div class="flex-1 overflow-y-auto px-4">
+                    <div class="space-y-4">
+                        <!-- Post-Workout Meals -->
+                        <div>
+                            <h4 class="font-semibold text-foreground mb-3 flex items-center">
+                                <i class="fas fa-fire text-primary mr-2"></i>
+                                Post-Workout (Within 45 mins)
+                            </h4>
+                            <div class="space-y-2">
+                                <div class="bg-muted/30 rounded-xl p-3 flex justify-between items-center" data-meal="whey-banana">
+                                    <div>
+                                        <p class="font-medium text-foreground">The Standard</p>
+                                        <p class="text-sm text-muted-foreground">1 Scoop Whey + 1 Large Banana</p>
+                                        <p class="text-xs text-primary">240 kcal • 26g protein</p>
+                                    </div>
+                                    <button class="px-3 py-1 bg-primary text-primary-foreground rounded-lg text-sm" data-event="click:addMeal">Add</button>
+                                </div>
+                                <div class="bg-muted/30 rounded-xl p-3 flex justify-between items-center" data-meal="protein-smoothie">
+                                    <div>
+                                        <p class="font-medium text-foreground">High-Protein Smoothie</p>
+                                        <p class="text-sm text-muted-foreground">1 Scoop Whey + 150g Curd + 1/2 Banana</p>
+                                        <p class="text-xs text-primary">300 kcal • 35g protein</p>
+                                    </div>
+                                    <button class="px-3 py-1 bg-primary text-primary-foreground rounded-lg text-sm" data-event="click:addMeal">Add</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Breakfast Options -->
+                        <div>
+                            <h4 class="font-semibold text-foreground mb-3 flex items-center">
+                                <i class="fas fa-coffee text-secondary mr-2"></i>
+                                Breakfast (Around 9:00 AM)
+                            </h4>
+                            <div class="space-y-2">
+                                <div class="bg-muted/30 rounded-xl p-3 flex justify-between items-center" data-meal="besan-chilla">
+                                    <div>
+                                        <p class="font-medium text-foreground">Besan Chilla</p>
+                                        <p class="text-sm text-muted-foreground">2 medium chillas + 150g Curd</p>
+                                        <p class="text-xs text-primary">500 kcal • 30g protein</p>
+                                    </div>
+                                    <button class="px-3 py-1 bg-primary text-primary-foreground rounded-lg text-sm" data-event="click:addMeal">Add</button>
+                                </div>
+                                <div class="bg-muted/30 rounded-xl p-3 flex justify-between items-center" data-meal="sprouted-salad">
+                                    <div>
+                                        <p class="font-medium text-foreground">Sprouted Dal Salad</p>
+                                        <p class="text-sm text-muted-foreground">250g sprouted moong + 50g Peanuts</p>
+                                        <p class="text-xs text-primary">450 kcal • 25g protein</p>
+                                    </div>
+                                    <button class="px-3 py-1 bg-primary text-primary-foreground rounded-lg text-sm" data-event="click:addMeal">Add</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Lunch Options -->
+                        <div>
+                            <h4 class="font-semibold text-foreground mb-3 flex items-center">
+                                <i class="fas fa-bowl-rice text-accent mr-2"></i>
+                                Lunch (Around 1:00 PM)
+                            </h4>
+                            <div class="space-y-2">
+                                <div class="bg-muted/30 rounded-xl p-3 flex justify-between items-center" data-meal="rajma-bowl">
+                                    <div>
+                                        <p class="font-medium text-foreground">Rajma/Chana Bowl</p>
+                                        <p class="text-sm text-muted-foreground">1 large bowl + 1.5 cups Brown Rice + Salad</p>
+                                        <p class="text-xs text-primary">600 kcal • 25g protein</p>
+                                    </div>
+                                    <button class="px-3 py-1 bg-primary text-primary-foreground rounded-lg text-sm" data-event="click:addMeal">Add</button>
+                                </div>
+                                <div class="bg-muted/30 rounded-xl p-3 flex justify-between items-center" data-meal="soya-curry">
+                                    <div>
+                                        <p class="font-medium text-foreground">Soya Chunk Curry</p>
+                                        <p class="text-sm text-muted-foreground">60g Soya Chunks + 2 Rotis + 100g Curd</p>
+                                        <p class="text-xs text-primary">580 kcal • 35g protein</p>
+                                    </div>
+                                    <button class="px-3 py-1 bg-primary text-primary-foreground rounded-lg text-sm" data-event="click:addMeal">Add</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- @COMPONENT: Success Animation Container -->
+        <div id="successAnimation" class="fixed inset-0 pointer-events-none z-50 flex items-center justify-center hidden">
+            <div class="bg-primary text-primary-foreground rounded-full w-20 h-20 flex items-center justify-center celebration-animation">
+                <i class="fas fa-check text-2xl"></i>
+            </div>
+        </div>
+
+    </div>
+    <!-- @END_COMPONENT: App Container -->
+
+    <script>
+        // TODO: Implement business logic, API calls, or state management
+        
+        (function() {
+            // Tab navigation
+            const tabButtons = document.querySelectorAll('[data-tab]');
+            
+            tabButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove active state from all tabs
+                    tabButtons.forEach(tab => {
+                        const icon = tab.querySelector('i');
+                        const text = tab.querySelector('span');
+                        icon.className = icon.className.replace('text-primary', 'text-muted-foreground');
+                        text.className = text.className.replace('text-primary', 'text-muted-foreground');
+                    });
+                    
+                    // Add active state to clicked tab
+                    const icon = this.querySelector('i');
+                    const text = this.querySelector('span');
+                    icon.className = icon.className.replace('text-muted-foreground', 'text-primary');
+                    text.className = text.className.replace('text-muted-foreground', 'text-primary');
+                });
+            });
+
+            // Quick Add Modal
+            const quickAddButton = document.querySelector('[data-event="click:quickAdd"]');
+            const quickAddModal = document.getElementById('quickAddModal');
+            
+            quickAddButton?.addEventListener('click', function() {
+                quickAddModal.classList.remove('hidden');
+            });
+
+            // Close modal when clicking outside
+            quickAddModal?.addEventListener('click', function(e) {
+                if (e.target === this) {
+                    this.classList.add('hidden');
+                }
+            });
+
+            // Meal Library Modal
+            const logMealButtons = document.querySelectorAll('[data-event="click:logMeal"]');
+            const mealLibraryModal = document.getElementById('mealLibraryModal');
+            const closeMealLibraryButton = document.querySelector('[data-event="click:closeMealLibrary"]');
+            
+            logMealButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    mealLibraryModal.classList.remove('translate-y-full');
+                    quickAddModal?.classList.add('hidden');
+                });
+            });
+
+            closeMealLibraryButton?.addEventListener('click', function() {
+                mealLibraryModal.classList.add('translate-y-full');
+            });
+
+            // Success Animation
+            const addMealButtons = document.querySelectorAll('[data-event="click:addMeal"]');
+            const successAnimation = document.getElementById('successAnimation');
+            
+            addMealButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Show success animation
+                    successAnimation.classList.remove('hidden');
+                    
+                    // Hide animation after 1 second
+                    setTimeout(() => {
+                        successAnimation.classList.add('hidden');
+                        mealLibraryModal.classList.add('translate-y-full');
+                    }, 1000);
+                    
+                    // Update progress (mock implementation)
+                    // TODO: Update actual progress data
+                });
+            });
+
+            // Progress circle animation on load
+            window.addEventListener('load', function() {
+                const progressCircles = document.querySelectorAll('.progress-circle');
+                progressCircles.forEach(circle => {
+                    circle.style.strokeDashoffset = circle.getAttribute('stroke-dashoffset');
+                });
+            });
+
+        })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,470 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitTracker - Comprehensive Fitness & Nutrition App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    borderRadius: {
+                        lg: "var(--radius)",
+                        md: "calc(var(--radius) - 2px)",
+                        sm: "calc(var(--radius) - 4px)",
+                    },
+                    colors: {
+                        background: "var(--background)",
+                        foreground: "var(--foreground)",
+                        card: {
+                            DEFAULT: "var(--card)",
+                            foreground: "var(--card-foreground)",
+                        },
+                        primary: {
+                            DEFAULT: "var(--primary)",
+                            foreground: "var(--primary-foreground)",
+                        },
+                        secondary: {
+                            DEFAULT: "var(--secondary)",
+                            foreground: "var(--secondary-foreground)",
+                        },
+                        muted: {
+                            DEFAULT: "var(--muted)",
+                            foreground: "var(--muted-foreground)",
+                        },
+                        accent: {
+                            DEFAULT: "var(--accent)",
+                            foreground: "var(--accent-foreground)",
+                        },
+                        success: "var(--success)",
+                        border: "var(--border)",
+                        ring: "var(--ring)",
+                    },
+                    fontFamily: {
+                        sans: ["Roboto", "system-ui", "sans-serif"],
+                    }
+                },
+            }
+        };
+    </script>
+    <style>
+        :root {
+            --background: hsl(0 0% 98%);
+            --foreground: hsl(0 0% 13%);
+            --card: hsl(0 0% 100%);
+            --card-foreground: hsl(0 0% 13%);
+            --primary: hsl(122 39% 49%);
+            --primary-foreground: hsl(0 0% 100%);
+            --secondary: hsl(14 100% 60%);
+            --secondary-foreground: hsl(0 0% 100%);
+            --muted: hsl(0 0% 96%);
+            --muted-foreground: hsl(0 0% 45%);
+            --accent: hsl(207 90% 54%);
+            --accent-foreground: hsl(0 0% 100%);
+            --success: hsl(88 50% 53%);
+            --border: hsl(0 0% 90%);
+            --ring: hsl(122 39% 49%);
+            --radius: 12px;
+        }
+        
+        .progress-ring {
+            transition: stroke-dasharray 0.35s;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .slide-up {
+            animation: slideUp 0.3s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-background text-foreground font-sans">
+    <!-- @COMPONENT: App Container -->
+    <div class="max-w-md mx-auto bg-white min-h-screen relative overflow-hidden">
+        
+        <!-- @COMPONENT: Header -->
+        <header class="bg-white border-b border-border px-4 py-3 sticky top-0 z-50">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-primary rounded-full flex items-center justify-center">
+                        <i class="fas fa-dumbbell text-primary-foreground text-sm"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-lg text-foreground">FitTracker</h1>
+                        <p class="text-xs text-muted-foreground" data-bind="user.currentDate">Monday, Sep 1</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button class="p-2 hover:bg-muted rounded-full transition-colors" data-event="click:openNotifications">
+                        <i class="fas fa-bell text-muted-foreground"></i>
+                    </button>
+                    <div class="w-8 h-8 bg-muted rounded-full overflow-hidden">
+                        <!-- A close-up portrait of a young person smiling, representing a fitness app user -->
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=100&h=100" alt="User profile" class="w-full h-full object-cover" />
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- @COMPONENT: Main Content Area -->
+        <main class="pb-20 px-4 space-y-6">
+            
+            <!-- @COMPONENT: Daily Overview Cards -->
+            <section class="pt-4 space-y-4 fade-in">
+                <h2 class="text-lg font-semibold text-foreground">Today's Overview</h2>
+                
+                <!-- @COMPONENT: Calorie Progress Card -->
+                <div class="bg-card rounded-lg p-4 border border-border shadow-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="font-medium text-card-foreground">Calorie Progress</h3>
+                        <span class="text-sm text-muted-foreground" data-bind="calories.percentage">74%</span>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="relative w-16 h-16">
+                            <svg class="w-16 h-16" viewBox="0 0 36 36">
+                                <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" 
+                                      fill="none" stroke="var(--muted)" stroke-width="2"/>
+                                <path class="progress-ring" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" 
+                                      fill="none" stroke="var(--primary)" stroke-width="2" 
+                                      stroke-dasharray="74, 100" stroke-linecap="round"/>
+                            </svg>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <span class="text-xs font-medium text-foreground" data-bind="calories.consumed">1,702</span>
+                            </div>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="text-muted-foreground">Consumed</span>
+                                <span class="font-medium text-foreground" data-bind="calories.consumed">1,702</span>
+                            </div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="text-muted-foreground">Goal</span>
+                                <span class="font-medium text-foreground" data-bind="calories.goal">2,300</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span class="text-muted-foreground">Remaining</span>
+                                <span class="font-medium text-success" data-bind="calories.remaining">598</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- @COMPONENT: Macros Grid -->
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="bg-card rounded-lg p-3 border border-border text-center">
+                        <div class="text-xl font-bold text-primary" data-bind="macros.protein.current">142g</div>
+                        <div class="text-xs text-muted-foreground">Protein</div>
+                        <div class="text-xs text-muted-foreground mt-1" data-bind="macros.protein.goal">Goal: 180g</div>
+                    </div>
+                    <div class="bg-card rounded-lg p-3 border border-border text-center">
+                        <div class="text-xl font-bold text-accent" data-bind="macros.carbs.current">210g</div>
+                        <div class="text-xs text-muted-foreground">Carbs</div>
+                        <div class="text-xs text-muted-foreground mt-1" data-bind="macros.carbs.goal">Goal: 280g</div>
+                    </div>
+                    <div class="bg-card rounded-lg p-3 border border-border text-center">
+                        <div class="text-xl font-bold text-secondary" data-bind="macros.fat.current">58g</div>
+                        <div class="text-xs text-muted-foreground">Fat</div>
+                        <div class="text-xs text-muted-foreground mt-1" data-bind="macros.fat.goal">Goal: 75g</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- @COMPONENT: Quick Actions -->
+            <section class="space-y-4">
+                <h2 class="text-lg font-semibold text-foreground">Quick Actions</h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <button class="bg-primary text-primary-foreground rounded-lg p-4 flex flex-col items-center space-y-2 hover:bg-primary/90 transition-colors" 
+                            data-event="click:addMeal">
+                        <i class="fas fa-utensils text-xl"></i>
+                        <span class="font-medium">Add Meal</span>
+                    </button>
+                    <button class="bg-accent text-accent-foreground rounded-lg p-4 flex flex-col items-center space-y-2 hover:bg-accent/90 transition-colors" 
+                            data-event="click:logWorkout">
+                        <i class="fas fa-dumbbell text-xl"></i>
+                        <span class="font-medium">Log Workout</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- @COMPONENT: Recent Meals -->
+            <section class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-lg font-semibold text-foreground">Recent Meals</h2>
+                    <button class="text-primary text-sm font-medium" data-event="click:viewAllMeals">View All</button>
+                </div>
+                
+                <!-- @MAP: recentMeals.map(meal => ( -->
+                <div class="bg-card rounded-lg border border-border p-4 hover:shadow-md transition-shadow" data-mock="true">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-12 h-12 bg-muted rounded-lg flex items-center justify-center">
+                            <i class="fas fa-egg text-primary"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-medium text-card-foreground" data-bind="meal.name">Besan Chilla with Curd</h3>
+                            <p class="text-sm text-muted-foreground" data-bind="meal.time">Breakfast • 9:30 AM</p>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-medium text-card-foreground" data-bind="meal.calories">500 kcal</div>
+                            <div class="text-sm text-muted-foreground" data-bind="meal.protein">30g protein</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-card rounded-lg border border-border p-4 hover:shadow-md transition-shadow" data-mock="true">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-12 h-12 bg-muted rounded-lg flex items-center justify-center">
+                            <i class="fas fa-seedling text-success"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-medium text-card-foreground" data-bind="meal.name">Whey Protein Smoothie</h3>
+                            <p class="text-sm text-muted-foreground" data-bind="meal.time">Post-Workout • 7:45 AM</p>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-medium text-card-foreground" data-bind="meal.calories">300 kcal</div>
+                            <div class="text-sm text-muted-foreground" data-bind="meal.protein">35g protein</div>
+                        </div>
+                    </div>
+                </div>
+                <!-- @END_MAP )) -->
+            </section>
+
+            <!-- @COMPONENT: Body Metrics Overview -->
+            <section class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-lg font-semibold text-foreground">Body Metrics</h2>
+                    <button class="text-primary text-sm font-medium" data-event="click:updateMetrics">Update</button>
+                </div>
+                
+                <div class="bg-card rounded-lg border border-border p-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-foreground" data-bind="metrics.weight">82.7kg</div>
+                            <div class="text-sm text-muted-foreground">Weight</div>
+                            <div class="text-xs text-success mt-1">↓ 0.3kg this week</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-foreground" data-bind="metrics.bodyFat">22.9%</div>
+                            <div class="text-sm text-muted-foreground">Body Fat</div>
+                            <div class="text-xs text-success mt-1">↓ 0.5% this week</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-foreground" data-bind="metrics.muscle">72.2%</div>
+                            <div class="text-sm text-muted-foreground">Muscle Rate</div>
+                            <div class="text-xs text-success mt-1">↑ 0.2% this week</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-2xl font-bold text-foreground" data-bind="metrics.bmi">24.7</div>
+                            <div class="text-sm text-muted-foreground">BMI</div>
+                            <div class="text-xs text-muted-foreground mt-1">Normal range</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- @COMPONENT: Recent Workouts -->
+            <section class="space-y-4">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-lg font-semibold text-foreground">Recent Workouts</h2>
+                    <button class="text-primary text-sm font-medium" data-event="click:viewAllWorkouts">View All</button>
+                </div>
+                
+                <!-- @MAP: recentWorkouts.map(workout => ( -->
+                <div class="bg-card rounded-lg border border-border p-4 hover:shadow-md transition-shadow" data-mock="true">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-dumbbell text-primary"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-medium text-card-foreground" data-bind="workout.name">Push Day - Chest & Shoulders</h3>
+                            <p class="text-sm text-muted-foreground" data-bind="workout.time">Yesterday • 45 mins</p>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-medium text-card-foreground" data-bind="workout.exercises">7 exercises</div>
+                            <div class="text-sm text-success" data-bind="workout.prs">2 new PRs</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-card rounded-lg border border-border p-4 hover:shadow-md transition-shadow" data-mock="true">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-12 h-12 bg-accent/10 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-running text-accent"></i>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="font-medium text-card-foreground" data-bind="workout.name">Pull Day - Back & Biceps</h3>
+                            <p class="text-sm text-muted-foreground" data-bind="workout.time">2 days ago • 50 mins</p>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-medium text-card-foreground" data-bind="workout.exercises">6 exercises</div>
+                            <div class="text-sm text-muted-foreground" data-bind="workout.prs">No new PRs</div>
+                        </div>
+                    </div>
+                </div>
+                <!-- @END_MAP )) -->
+            </section>
+
+            <!-- @COMPONENT: Weekly Progress Chart -->
+            <section class="space-y-4">
+                <h2 class="text-lg font-semibold text-foreground">Weekly Progress</h2>
+                <div class="bg-card rounded-lg border border-border p-4">
+                    <div class="mb-4">
+                        <h3 class="font-medium text-card-foreground mb-2">Weight Trend</h3>
+                        <!-- Simplified chart representation -->
+                        <div class="h-32 bg-muted/50 rounded-lg flex items-end justify-between px-2 py-2">
+                            <div class="w-3 bg-primary rounded-t" style="height: 60%"></div>
+                            <div class="w-3 bg-primary rounded-t" style="height: 65%"></div>
+                            <div class="w-3 bg-primary rounded-t" style="height: 55%"></div>
+                            <div class="w-3 bg-primary rounded-t" style="height: 50%"></div>
+                            <div class="w-3 bg-primary rounded-t" style="height: 45%"></div>
+                            <div class="w-3 bg-primary rounded-t" style="height: 40%"></div>
+                            <div class="w-3 bg-primary rounded-t" style="height: 35%"></div>
+                        </div>
+                        <div class="flex justify-between text-xs text-muted-foreground mt-2">
+                            <span>Mon</span>
+                            <span>Tue</span>
+                            <span>Wed</span>
+                            <span>Thu</span>
+                            <span>Fri</span>
+                            <span>Sat</span>
+                            <span>Sun</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- @COMPONENT: Bottom Navigation -->
+        <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-border">
+            <div class="max-w-md mx-auto px-4 py-2">
+                <div class="flex justify-around">
+                    <button class="flex flex-col items-center py-2 px-3 text-primary" data-event="click:navigateHome">
+                        <i class="fas fa-home text-xl mb-1"></i>
+                        <span class="text-xs font-medium">Home</span>
+                    </button>
+                    <button class="flex flex-col items-center py-2 px-3 text-muted-foreground hover:text-primary transition-colors" data-event="click:navigateNutrition">
+                        <i class="fas fa-utensils text-xl mb-1"></i>
+                        <span class="text-xs">Nutrition</span>
+                    </button>
+                    <button class="flex flex-col items-center py-2 px-3 text-muted-foreground hover:text-primary transition-colors" data-event="click:navigateWorkouts">
+                        <i class="fas fa-dumbbell text-xl mb-1"></i>
+                        <span class="text-xs">Workouts</span>
+                    </button>
+                    <button class="flex flex-col items-center py-2 px-3 text-muted-foreground hover:text-primary transition-colors" data-event="click:navigateProgress">
+                        <i class="fas fa-chart-line text-xl mb-1"></i>
+                        <span class="text-xs">Progress</span>
+                    </button>
+                    <button class="flex flex-col items-center py-2 px-3 text-muted-foreground hover:text-primary transition-colors" data-event="click:navigateProfile">
+                        <i class="fas fa-user text-xl mb-1"></i>
+                        <span class="text-xs">Profile</span>
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- @COMPONENT: Floating Action Button -->
+        <button class="fixed bottom-20 right-4 w-14 h-14 bg-primary text-primary-foreground rounded-full shadow-lg flex items-center justify-center hover:bg-primary/90 transition-all hover:scale-105" 
+                data-event="click:quickAdd">
+            <i class="fas fa-plus text-xl"></i>
+        </button>
+    </div>
+    <!-- @END_COMPONENT: App Container -->
+
+    <!-- @COMPONENT: Add Meal Modal (Hidden by default) -->
+    <div class="fixed inset-0 bg-black/50 z-50 hidden" id="addMealModal" data-implementation="Modal component for adding meals">
+        <div class="max-w-md mx-auto h-full flex items-end">
+            <div class="bg-white w-full rounded-t-3xl p-6 slide-up">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-bold text-foreground">Add Meal</h2>
+                    <button class="p-2 hover:bg-muted rounded-full" data-event="click:closeModal">
+                        <i class="fas fa-times text-muted-foreground"></i>
+                    </button>
+                </div>
+                
+                <!-- @COMPONENT: Meal Categories from PDF -->
+                <div class="space-y-4">
+                    <div class="bg-card border border-border rounded-lg p-4">
+                        <h3 class="font-medium text-card-foreground mb-3">Popular Meals</h3>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between p-3 bg-muted/50 rounded-lg cursor-pointer hover:bg-muted transition-colors" data-mock="true">
+                                <div>
+                                    <div class="font-medium text-foreground">Besan Chilla with Curd</div>
+                                    <div class="text-sm text-muted-foreground">500 kcal • 30g protein</div>
+                                </div>
+                                <button class="text-primary font-medium">Add</button>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-muted/50 rounded-lg cursor-pointer hover:bg-muted transition-colors" data-mock="true">
+                                <div>
+                                    <div class="font-medium text-foreground">Whey Protein Smoothie</div>
+                                    <div class="text-sm text-muted-foreground">300 kcal • 35g protein</div>
+                                </div>
+                                <button class="text-primary font-medium">Add</button>
+                            </div>
+                            <div class="flex items-center justify-between p-3 bg-muted/50 rounded-lg cursor-pointer hover:bg-muted transition-colors" data-mock="true">
+                                <div>
+                                    <div class="font-medium text-foreground">Rajma Bowl with Brown Rice</div>
+                                    <div class="text-sm text-muted-foreground">600 kcal • 25g protein</div>
+                                </div>
+                                <button class="text-primary font-medium">Add</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="w-full bg-primary text-primary-foreground py-3 rounded-lg font-medium hover:bg-primary/90 transition-colors" data-event="click:createCustomMeal">
+                        Create Custom Meal
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // TODO: Implement business logic, API calls, and state management
+            
+            // Basic modal functionality for demonstration
+            document.addEventListener('DOMContentLoaded', function() {
+                const addMealButtons = document.querySelectorAll('[data-event="click:addMeal"], [data-event="click:quickAdd"]');
+                const modal = document.getElementById('addMealModal');
+                const closeButton = document.querySelector('[data-event="click:closeModal"]');
+                
+                addMealButtons.forEach(button => {
+                    button.addEventListener('click', function() {
+                        modal.classList.remove('hidden');
+                    });
+                });
+                
+                if (closeButton) {
+                    closeButton.addEventListener('click', function() {
+                        modal.classList.add('hidden');
+                    });
+                }
+                
+                // Close modal when clicking outside
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        modal.classList.add('hidden');
+                    }
+                });
+            });
+        })();
+    </script>
+</body>
+</html>
