@@ -37,7 +37,9 @@ app.use(session({
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: false, // In production this should be true if using HTTPS
+       secure: true,   // Requires HTTPS
+      httpOnly: true,
+      sameSite: 'none', // Allows cross-site cookie sending (Postman to your API)
       maxAge: 86400000 // 24 hours
     }
 }));
