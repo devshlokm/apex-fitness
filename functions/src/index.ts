@@ -29,7 +29,7 @@ const app = express();
 // --- NEW --- Configure CORS Middleware
 // This MUST be placed before your session middleware and routes
 app.use(cors({
-  origin: 'https://apex-fitness-9b7b2.web.app', // This is your front-end's URL
+  origin: true,
   credentials: true // This is the crucial setting that allows cookies to be sent
 }));
 app.use(express.json());
