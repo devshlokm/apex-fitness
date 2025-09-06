@@ -5,9 +5,19 @@ import {initializeApp, applicationDefault} from "firebase-admin/app";
 import {getFirestore} from "firebase-admin/firestore";
 import * as bcrypt from "bcryptjs";
 import session from "express-session";
-
-// --- UPDATED --- Import the new FirestoreStore
 import {FirestoreStore} from "@google-cloud/connect-firestore";
+import "express-session";
+
+// This is the type declaration you created in `custom.d.ts`.
+// It tells TypeScript about the `req.session.user` property.
+declare module "express-session" {
+  interface SessionData {
+    user: {
+      id: string;
+      email: string;
+    };
+  }
+}
 
 setGlobalOptions({maxInstances: 10});
 
@@ -17,28 +27,27 @@ const db = getFirestore();
 const app = express();
 app.use(express.json());
 
-// --- UPDATED --- Configure Session Middleware to use Firestore
+// Configure Session Middleware to use Firestore
 app.use(session({
     store: new FirestoreStore({
         dataset: db,
-        kind: 'express-sessions', // This will create a new collection in Firestore named 'express-sessions'
+        kind: 'express-sessions',
     }),
     secret: "a_very_secret_key_for_your_app",
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: false, // Should be true in production with HTTPS
+      secure: false, // In production this should be true if using HTTPS
       maxAge: 86400000 // 24 hours
     }
 }));
 
 
 // =================================================================
-//  YOUR SERVER LOGIC (API ROUTES)
+//  API ROUTES
 // =================================================================
 
 // --- USER REGISTRATION ENDPOINT ---
-// (No changes needed here)
 app.post("/api/register", async (req, res) => {
   try {
     const {email, password} = req.body;
@@ -68,7 +77,6 @@ app.post("/api/register", async (req, res) => {
 });
 
 // --- USER LOGIN ENDPOINT ---
-// (No changes needed here)
 app.post("/api/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -103,7 +111,6 @@ app.post("/api/login", async (req, res) => {
 });
 
 // --- USER LOGOUT ENDPOINT ---
-// (No changes needed here)
 app.post("/api/logout", (req, res) => {
     req.session.destroy((err) => {
         if (err) {
@@ -116,7 +123,6 @@ app.post("/api/logout", (req, res) => {
 });
 
 // --- CHECK SESSION ENDPOINT ---
-// (No changes needed here)
 app.get("/api/me", (req, res) => {
     if (req.session.user) {
         return res.status(200).send(req.session.user);
