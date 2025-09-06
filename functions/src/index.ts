@@ -7,6 +7,7 @@ import * as bcrypt from "bcryptjs";
 import session from "express-session";
 import {FirestoreStore} from "@google-cloud/connect-firestore";
 import "express-session";
+import cors from "cors"; // --- NEW --- Import CORS
 
 // This is the type declaration you created in `custom.d.ts`.
 // It tells TypeScript about the `req.session.user` property.
@@ -25,6 +26,12 @@ initializeApp({credential: applicationDefault()});
 const db = getFirestore();
 
 const app = express();
+// --- NEW --- Configure CORS Middleware
+// This MUST be placed before your session middleware and routes
+app.use(cors({
+  origin: 'https://apex-fitness-9b7b2.web.app', // This is your front-end's URL
+  credentials: true // This is the crucial setting that allows cookies to be sent
+}));
 app.use(express.json());
 
 // Configure Session Middleware to use Firestore
