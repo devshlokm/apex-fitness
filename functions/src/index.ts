@@ -1,62 +1,129 @@
-//Replit Version
-// /**
-//  * Import function triggers from their respective submodules:
-//  *
-//  * import {onCall} from "firebase-functions/v2/https";
-//  * import {onDocumentWritten} from "firebase-functions/v2/firestore";
-//  *
-//  * See a full list of supported triggers at https://firebase.google.com/docs/functions
-//  */
-
-// import {setGlobalOptions} from "firebase-functions";
-// import {onRequest} from "firebase-functions/https";
-// import * as logger from "firebase-functions/logger";
-
-// // Start writing functions
-// // https://firebase.google.com/docs/functions/typescript
-
-// // For cost control, you can set the maximum number of containers that can be
-// // running at the same time. This helps mitigate the impact of unexpected
-// // traffic spikes by instead downgrading performance. This limit is a
-// // per-function limit. You can override the limit for each function using the
-// // `maxInstances` option in the function's options, e.g.
-// // `onRequest({ maxInstances: 5 }, (req, res) => { ... })`.
-// // NOTE: setGlobalOptions does not apply to functions using the v1 API. V1
-// // functions should each use functions.runWith({ maxInstances: 10 }) instead.
-// // In the v1 API, each function can only serve one request per container, so
-// // this will be the maximum concurrent request count.
-// setGlobalOptions({ maxInstances: 10 });
-
-// // export const helloWorld = onRequest((request, response) => {
-// //   logger.info("Hello logs!", {structuredData: true});
-// //   response.send("Hello from Firebase!");
-// // });
-
-import { onRequest } from "firebase-functions/v2/https";
+import {onRequest} from "firebase-functions/v2/https";
+import {setGlobalOptions} from "firebase-functions/v2";
 import express from "express";
-// Initialize your Express app
+import {initializeApp, applicationDefault} from "firebase-admin/app";
+import {getFirestore} from "firebase-admin/firestore";
+import * as bcrypt from "bcryptjs";
+import session from "express-session";
+
+// --- UPDATED --- Import the new FirestoreStore
+import {FirestoreStore} from "@google-cloud/connect-firestore";
+
+setGlobalOptions({maxInstances: 10});
+
+initializeApp({credential: applicationDefault()});
+const db = getFirestore();
+
 const app = express();
+app.use(express.json());
+
+// --- UPDATED --- Configure Session Middleware to use Firestore
+app.use(session({
+    store: new FirestoreStore({
+        dataset: db,
+        kind: 'express-sessions', // This will create a new collection in Firestore named 'express-sessions'
+    }),
+    secret: "a_very_secret_key_for_your_app",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: false, // Should be true in production with HTTPS
+      maxAge: 86400000 // 24 hours
+    }
+}));
+
 
 // =================================================================
-//  COPY YOUR SERVER LOGIC FROM `server/index.ts` HERE
-// =================================================================
-//
-//  Go to your original `server/index.ts` file and copy all of your
-//  middleware (like express.json()), routes (app.get, app.post),
-//  and database connection logic, and paste it in this section.
-//
-//  IMPORTANT: Do NOT copy the `app.listen(...)` part. Firebase handles that.
-//
-//  Example:
-//  app.use(express.json()); // From your original file
-//  app.get("/api/users", (req, res) => {
-//      res.send("This is a response from my API!");
-//  });
-//
+//  YOUR SERVER LOGIC (API ROUTES)
 // =================================================================
 
-// This line exposes your entire Express app as a single Cloud Function
-// named "api". Firebase will handle all incoming requests.
+// --- USER REGISTRATION ENDPOINT ---
+// (No changes needed here)
+app.post("/api/register", async (req, res) => {
+  try {
+    const {email, password} = req.body;
+    if (!email || !password) {
+      return res.status(400).send({error: "Email and password are required."});
+    }
+    const usersRef = db.collection("users");
+    const snapshot = await usersRef.where("email", "==", email).get();
+    if (!snapshot.empty) {
+      return res.status(409).send({error: "User with this email already exists."});
+    }
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+    const newUserRef = await usersRef.add({
+      email: email,
+      password: hashedPassword,
+      createdAt: new Date(),
+    });
+    return res.status(201).send({
+      message: "User created successfully!",
+      userId: newUserRef.id,
+    });
+  } catch (error) {
+    console.error("Error creating user:", error);
+    return res.status(500).send({error: "Something went wrong. Please try again."});
+  }
+});
+
+// --- USER LOGIN ENDPOINT ---
+// (No changes needed here)
+app.post("/api/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res.status(400).send({ error: "Email and password are required." });
+    }
+    const usersRef = db.collection("users");
+    const snapshot = await usersRef.where("email", "==", email).get();
+    if (snapshot.empty) {
+      return res.status(401).send({ error: "Invalid credentials." });
+    }
+    const userDoc = snapshot.docs[0];
+    const userData = userDoc.data();
+    const hashedPassword = userData.password;
+    const isMatch = await bcrypt.compare(password, hashedPassword);
+    if (!isMatch) {
+      return res.status(401).send({ error: "Invalid credentials." });
+    }
+    req.session.user = {
+        id: userDoc.id,
+        email: userData.email
+    };
+    return res.status(200).send({
+      message: "Login successful!",
+      userId: userDoc.id,
+      email: userData.email,
+    });
+  } catch (error) {
+    console.error("Error logging in user:", error);
+    return res.status(500).send({ error: "Something went wrong. Please try again." });
+  }
+});
+
+// --- USER LOGOUT ENDPOINT ---
+// (No changes needed here)
+app.post("/api/logout", (req, res) => {
+    req.session.destroy((err) => {
+        if (err) {
+            return res.status(500).send({ error: "Could not log out, please try again." });
+        } else {
+            res.clearCookie('connect.sid');
+            return res.status(200).send({ message: "Logout successful." });
+        }
+    });
+});
+
+// --- CHECK SESSION ENDPOINT ---
+// (No changes needed here)
+app.get("/api/me", (req, res) => {
+    if (req.session.user) {
+        return res.status(200).send(req.session.user);
+    } else {
+        return res.status(401).send({ error: "Not authenticated" });
+    }
+});
+// =================================================================
+
 export const api = onRequest(app);
-
-
